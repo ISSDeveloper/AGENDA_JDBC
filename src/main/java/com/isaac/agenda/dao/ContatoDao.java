@@ -119,22 +119,22 @@ public class ContatoDao {
 
 	public Long getNextCodInt() throws DaoException {
 
-		Long codContato = 0L;
+		Long codContato = 1L;
 		
 		try {
 			PreparedStatement stmt = connection.prepareStatement("SELECT MAX(COD_CONTATO) COD_CONTATO FROM CONTATO");
 			ResultSet rs = stmt.executeQuery();
 
 			if (rs.next()) {
-				codContato = rs.getLong("COD_CONTATO");
+				codContato = rs.getLong("COD_CONTATO") + 1;
 			}
 			
 			rs.close();
 			stmt.close();
+			
+			return codContato;
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		}
-
-		return codContato;
 	}
 }

@@ -34,13 +34,14 @@ public class ContatoBss {
 		}
 	}
 	
-	public void create(Contato contato) throws BssException {
+	public Contato create(Contato contato) throws BssException {
 		
 		try {
 			contato.setCodContato(dao.getNextCodInt());
 			
 			dao.create(contato);
 			
+			return contato;
 		} catch (Exception e) {
 			throw new BssException(e);
 		}

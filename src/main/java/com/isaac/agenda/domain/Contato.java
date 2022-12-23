@@ -8,6 +8,11 @@ public class Contato {
 
 	public Contato() {
 	}
+	
+	public Contato(String nome, Long telefone) {
+		this.nome = nome;
+		this.telefone = telefone;
+	}
 
 	public Contato(Long codContato, String nome, Long telefone) {
 		this.codContato = codContato;
