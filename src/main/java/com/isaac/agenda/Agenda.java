@@ -90,12 +90,12 @@ public class Agenda {
 		if (nome == null)
 			return;
 
-		String telefone = getTelefone();
+		Long telefone = getTelefone();
 
 		if (telefone == null)
 			return;
 
-		Contato contato = contatoBss.create(new Contato(nome, Long.valueOf(telefone)));
+		Contato contato = contatoBss.create(new Contato(nome, telefone));
 
 		System.out.println();
 
@@ -117,10 +117,15 @@ public class Agenda {
 		System.out.printf("----------------------------------------------------------------------%n");
 		System.out.println();
 	}
-
+	
 	public static String getNome() throws IOException {
+		
+		return getNome(false);
+	}
 
-		System.out.print("Nome: ");
+	public static String getNome(Boolean novo) throws IOException {
+
+		System.out.print(novo ? "Novo nome: " : "Nome: ");
 		String nome = br.readLine();
 
 		if ("*".equals(nome)) {
@@ -138,15 +143,24 @@ public class Agenda {
 		return nome;
 	}
 
-	public static String getTelefone() throws IOException {
+	public static Long getTelefone() throws IOException {
+		
+		return getTelefone(false);
+	}
+	
+	public static Long getTelefone(Boolean novo) throws IOException {
 
-		System.out.print("Telefone: ");
+		System.out.print(novo ? "Novo telefone: ": "Telefone: ");
 		String telefone = br.readLine();
 
 		if ("*".equals(telefone)) {
 
 			System.out.println(Color.ANSI_AMARELO + "Operação cancelada!" + Color.ANSI_RESET + "\n");
 			return null;
+		}
+		
+		if(novo && telefone.isEmpty()) {
+			return 0L;
 		}
 
 		if (!isTelefone(telefone)) {
@@ -155,7 +169,7 @@ public class Agenda {
 			return getTelefone();
 		}
 
-		return telefone;
+		return Long.valueOf(telefone);
 	}
 
 	private static boolean isTelefone(String telefone) {
@@ -171,8 +185,88 @@ public class Agenda {
 		}
 	}
 
-	private static void alterar() {
+	private static void alterar() throws BssException, NumberFormatException, IOException {
+		
+		System.out.println(Color.ANSI_VERDE_FUNDO + Color.ANSI_BRANCO + "       ALTERAR      " + Color.ANSI_RESET);
+		System.out.println();
+		
+		List<Contato> lista = contatoBss.getList();
 
+		System.out.printf("----------------------------------------------------------------------%n");
+		System.out.printf("| %-8s | %-40s | %12s |%n", "CÓDIGO", "NOME", "TELEFONE");
+		System.out.printf("----------------------------------------------------------------------%n");
+		
+		lista.forEach(
+				c -> System.out.printf("| %-8s | %-40s | %12s |%n", c.getCodContato(), c.getNome(), c.getTelefone()));
+
+		System.out.printf("----------------------------------------------------------------------%n");
+		System.out.println();
+		
+		System.out.println(Color.ANSI_AMARELO + "Para cancelar operação digite: * " + Color.ANSI_RESET);
+		
+		Long codContato = getCodigo(lista);
+		
+		if(codContato == null)
+			return;
+		
+		System.out.println(Color.ANSI_AMARELO + "Para continuar com o mesmo nome precione 'Enter'" + Color.ANSI_RESET);
+		
+		String nome = getNome(true);
+		
+		if(nome == null)
+			return;
+		
+		Long telefone = getTelefone(true);
+		
+		if(telefone == null)
+			return;
+		
+		contatoBss.update(new Contato(codContato, nome, telefone));
+		
+		lista = contatoBss.getList();
+
+		System.out.println();
+		System.out.printf("----------------------------------------------------------------------%n");
+		System.out.printf("| %-8s | %-40s | %12s |%n", "CÓDIGO", "NOME", "TELEFONE");
+		System.out.printf("----------------------------------------------------------------------%n");
+
+		for (Contato c : lista) {
+			if (c.getCodContato() == codContato) {
+				System.out.printf(Color.ANSI_VERDE + "| %-8s | %-40s | %12s |" + Color.ANSI_RESET + "%n",
+						c.getCodContato(), c.getNome(), c.getTelefone());
+			} else {
+				System.out.printf("| %-8s | %-40s | %12s |%n", c.getCodContato(), c.getNome(), c.getTelefone());
+			}
+		}
+
+		System.out.printf("----------------------------------------------------------------------%n");
+		System.out.println();
+	}
+	
+	public static Long getCodigo(List<Contato> lista) throws IOException {
+		
+		System.out.print(Color.ANSI_VERDE + "Digite o código: " + Color.ANSI_RESET);
+		String codContato = br.readLine();
+		
+		if ("*".equals(codContato)) {
+
+			System.out.println(Color.ANSI_AMARELO + "Operação cancelada!" + Color.ANSI_RESET + "\n");
+			return null;
+		}
+		
+		try {
+			Long cod = Long.parseLong(codContato);
+			
+			if(lista.stream().noneMatch(c -> c.getCodContato() == cod)) {
+				System.out.println(Color.ANSI_VERMELHO + "Código inexistente!" + Color.ANSI_RESET);
+				return getCodigo(lista);
+			} else {
+				return cod;
+			}
+		} catch (NumberFormatException e) {
+			System.out.println(Color.ANSI_VERMELHO + "Código invalido!" + Color.ANSI_RESET);
+			return getCodigo(lista);
+		}
 	}
 
 	private static void remover() {

@@ -49,6 +49,20 @@ public class ContatoBss {
 	public void update(Contato contato) throws BssException {
 		
 		try {
+			
+			if(contato.getNome().isEmpty() ||contato.getTelefone() == 0 ) {
+				
+				Contato contatoAntigo = getEntity(contato.getCodContato());
+				
+				if(contato.getNome().isEmpty()) {
+					contato.setNome(contatoAntigo.getNome());
+				}
+				
+				if(contato.getTelefone() == 0) {
+					contato.setTelefone(contatoAntigo.getTelefone());
+				}
+			}
+			
 			dao.update(contato);
 			
 		} catch (Exception e) {
