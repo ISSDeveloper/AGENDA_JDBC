@@ -137,4 +137,14 @@ public class ContatoDao {
 			throw new DaoException(e);
 		}
 	}
+
+	public void remove(Long codContato) throws DaoException {
+		try {
+			PreparedStatement stmt = connection.prepareStatement("DELETE FROM CONTATO WHERE COD_CONTATO = " + codContato);
+			stmt.execute();
+			stmt.close();
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		}
+	}
 }
